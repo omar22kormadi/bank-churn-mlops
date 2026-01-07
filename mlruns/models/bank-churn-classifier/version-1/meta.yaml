@@ -1,0 +1,14 @@
+aliases: []
+creation_timestamp: 1764942818870
+current_stage: None
+description: null
+last_updated_timestamp: 1764942818870
+name: bank-churn-classifier
+run_id: 60b9052b69f74a3f96789ed72a5017e6
+run_link: null
+source: file:///C:/Users/amork/Desktop/ml-deploy/mlruns/309356285877400091/60b9052b69f74a3f96789ed72a5017e6/artifacts/model
+status: READY
+status_message: null
+storage_location: file:///C:/Users/amork/Desktop/ml-deploy/mlruns/309356285877400091/60b9052b69f74a3f96789ed72a5017e6/artifacts/model
+user_id: null
+version: 1

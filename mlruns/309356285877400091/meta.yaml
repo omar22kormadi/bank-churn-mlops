@@ -1,0 +1,6 @@
+artifact_location: file:///C:/Users/amork/Desktop/ml-deploy/mlruns/309356285877400091
+creation_time: 1764942804510
+experiment_id: '309356285877400091'
+last_update_time: 1764942804510
+lifecycle_stage: active
+name: bank-churn-prediction
