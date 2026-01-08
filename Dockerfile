@@ -1,21 +1,17 @@
-# Utilise une image Python officielle
-FROM python:3.9-slim
+FROM python:3.10
 
-# Definir le repertoire de travail
 WORKDIR /app
 
-# Copier les fichiers de dependances
 COPY requirements.txt .
 
-# Installer les dependances
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y gcc g++ \
+    && pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt \
+    && apt-get purge -y gcc g++ \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copier le code de l'application
-COPY app/ ./app/
-COPY model/ ./model/
+COPY . .
 
-# Exposer le port
 EXPOSE 8000
 
-# Commande pour demarrer l'application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
