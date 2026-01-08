@@ -1,0 +1,86 @@
+name: Bank Churn MLOps CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+    
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+    
+    - name: Test with pytest
+      run: |
+        pytest tests/ --cov=app --cov-report=xml -v
+    
+    - name: Train ML model (dev)
+      run: |
+        python app/train.py  # Ajustez selon votre script d'entraînement
+
+  docker-build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Login to GHCR
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Build & push Docker image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: ${{ github.ref == 'refs/heads/main' }}
+        tags: |
+          ghcr.io/omar22kormadi/bank-churn-mlops:latest
+          ghcr.io/omar22kormadi/bank-churn-mlops:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  mlflow:
+    needs: docker-build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Start MLflow tracking
+      run: |
+        mlflow server --backend-store-uri sqlite:///mlruns --default-artifact-root ./mlruns --host 0.0.0.0 --port 5000 &
+        sleep 10
+        mlflow experiments list
+
+  deploy:
+    needs: [docker-build, mlflow]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy to Railway
+      uses: danny0453/railway-deploy@v1
+      with:
+        token: ${{ secrets.RAILWAY_TOKEN }}
+        serviceId: ${{ secrets.RAILWAY_SERVICE_ID }}
+        # Ou projectId pour tout le projet
