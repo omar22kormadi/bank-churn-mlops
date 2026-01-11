@@ -517,9 +517,3 @@ For issues, questions, or feature requests, please open an issue on the reposito
 ## 📌 Version History
 
 - **v1.0.0** (Jan 2026): Initial release with prediction and batch endpoints
-
----
-
-**Last Updated**: January 2026
-#   m l o p s - v 1  
- 
